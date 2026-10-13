@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OVERTIME — Design System Preview · Kingdom of Chess</title>
+<style>
+  :root {
+    --void: #0a0b0d;
+    --void-2: #0d0f13;
+    --panel: #111419;
+    --panel-2: #171b21;
+    --line: #262b33;
+    --line-soft: #1a1e24;
+    --ink: #f2f4ee;
+    --ink-dim: #9ba3ad;
+    --ink-mute: #7c848e;
+    --ink-mute-orig: #737b85;
+    --acid: #c6f832;
+    --acid-deep: #95c314;
+    --live: #ff4b3e;
+    --board-light: #d9ddc8;
+    --board-dark: #4d5640;
+    --font-sans: Archivo, "Helvetica Neue", Arial, sans-serif;
+    --font-display: Archivo, "Arial Narrow", Arial, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+    --ease: cubic-bezier(0.2, 0.75, 0.25, 1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; border-radius: 0 !important; }
+
+  html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
+
+  body {
+    background-color: var(--void);
+    background-image:
+      radial-gradient(74rem 36rem at 84% -10%, rgba(198, 248, 50, 0.12), transparent 62%),
+      linear-gradient(to right, rgba(255,255,255,0.022) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.022) 1px, transparent 1px);
+    background-size: auto, 72px 72px, 72px 72px;
+    background-attachment: fixed;
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: var(--acid); color: var(--void); }
+  :focus-visible { outline: 2px solid var(--acid); outline-offset: 2px; }
+
+  /* ---------- utilities (mirrors globals.css) ---------- */
+  .u-label {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    line-height: 1.1;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+  }
+  .display {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-variation-settings: "wdth" 112, "wght" 800;
+    text-transform: uppercase;
+    letter-spacing: -0.012em;
+    line-height: 0.94;
+  }
+  .numeral {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-variation-settings: "wdth" 64, "wght" 900;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.04em;
+    line-height: 0.76;
+  }
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .panel { background: var(--panel); border: 1px solid var(--line); }
+  .panel-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: 0.7rem 1rem; border-bottom: 1px solid var(--line);
+    background: rgba(255,255,255,0.018);
+  }
+  .stripes {
+    background-image: repeating-linear-gradient(-45deg, var(--acid) 0 6px, transparent 6px 13px);
+  }
+  .row-hit { position: relative; transition: background-color .18s ease; }
+  .row-hit::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+    background: var(--acid); transform: scaleY(0); transform-origin: center;
+    transition: transform .22s var(--ease);
+  }
+  .row-hit:hover { background: var(--panel-2); }
+  .row-hit:hover::before { transform: scaleY(1); }
+  .dot-live { width: 8px; height: 8px; background: var(--live); animation: blink 1.25s step-end infinite; }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: .2; } }
+  @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---------- chrome ---------- */
+  header.top {
+    position: sticky; top: 0; z-index: 40;
+    border-bottom: 1px solid var(--line);
+    background: rgba(10,11,13,.88); backdrop-filter: blur(10px);
+  }
+  .top-in { max-width: 1440px; margin: 0 auto; height: 64px; display: flex; align-items: center; gap: 24px; padding: 0 20px; }
+  .mark { display: flex; align-items: center; gap: 12px; }
+  .mark-glyph {
+    width: 32px; height: 28px; display: grid; place-items: center;
+    background: var(--acid); color: var(--void); font-weight: 700;
+    font-family: var(--font-mono); font-size: 13px;
+  }
+  .mark-name { font-size: 17px; letter-spacing: .04em; }
+  nav.tabs { margin-left: auto; display: flex; gap: 4px; overflow-x: auto; }
+  nav.tabs a {
+    color: var(--ink-mute); text-decoration: none; padding: 8px 12px;
+    transition: color .18s ease; white-space: nowrap;
+  }
+  nav.tabs a:hover, nav.tabs a.active { color: var(--ink); }
+  nav.tabs a.active { box-shadow: inset 0 -2px 0 var(--acid); }
+
+  main { max-width: 1440px; margin: 0 auto; padding: 40px 20px 80px; }
+  section { margin-bottom: 56px; scroll-margin-top: 96px; }
+  .sec-head { display: flex; align-items: baseline; gap: 16px; border-bottom: 1px solid var(--line); padding-bottom: 12px; margin-bottom: 24px; }
+  .sec-head h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); }
+  .sec-head p { color: var(--ink-dim); font-size: 14px; }
+
+  .grid { display: grid; gap: 16px; }
+  .g2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .g3 { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+
+  /* ---------- hero ---------- */
+  .hero { display: grid; gap: 8px; margin-bottom: 48px; }
+  .hero h1 { font-size: clamp(2.6rem, 7vw, 5rem); }
+  .hero .sub { color: var(--ink-dim); max-width: 62ch; }
+  .hero .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 10px; border: 1px solid currentColor;
+  }
+  .chip .dot { width: 6px; height: 6px; background: currentColor; }
+
+  /* ---------- swatches ---------- */
+  .sw { display: flex; flex-direction: column; border: 1px solid var(--line); background: var(--panel); cursor: pointer; transition: transform .18s var(--ease); }
+  .sw:hover { transform: translateY(-2px); }
+  .sw:active { transform: translateY(0); }
+  .sw-color { height: 72px; border-bottom: 1px solid var(--line); }
+  .sw-meta { padding: 10px 12px; display: grid; gap: 4px; }
+  .sw-meta .hex { font-family: var(--font-mono); font-size: 13px; color: var(--ink); }
+  .sw-meta .role { color: var(--ink-mute); }
+  .sw-meta .cr { color: var(--acid); }
+
+  /* ---------- type specimens ---------- */
+  .spec { background: var(--panel); border: 1px solid var(--line); padding: 20px; display: grid; gap: 10px; }
+  .spec .meta { color: var(--ink-mute); }
+
+  /* ---------- buttons ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+    padding: 14px 24px; font-size: 14px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .08em;
+    border: 1px solid transparent; cursor: pointer; min-height: 48px;
+    transition: background-color .18s ease, color .18s ease, border-color .18s ease;
+    font-family: var(--font-sans); text-decoration: none;
+  }
+  .btn-primary { background: var(--acid); color: var(--void); }
+  .btn-primary:hover { background: var(--acid-deep); }
+  .btn-outline { background: transparent; color: var(--ink); border-color: var(--line); }
+  .btn-outline:hover { background: var(--panel); border-color: var(--ink-mute); }
+  .btn-ghost { background: transparent; color: var(--ink-dim); }
+  .btn-ghost:hover { color: var(--ink); background: var(--panel-2); }
+  .btn-danger { background: transparent; color: var(--live); border-color: rgba(255,75,62,.4); }
+  .btn-danger:hover { background: rgba(255,75,62,.1); }
+  .btn[disabled], .btn.is-disabled { opacity: .45; cursor: not-allowed; pointer-events: none; }
+  .spinner {
+    width: 14px; height: 14px; border: 2px solid currentColor;
+    border-right-color: transparent; animation: spin .7s linear infinite;
+  }
+
+  /* ---------- states ---------- */
+  .state-block { padding: 32px 20px; text-align: center; display: grid; gap: 10px; justify-items: center; }
+  .state-block h4 { font-size: 20px; }
+  .state-block p { color: var(--ink-dim); font-size: 14px; max-width: 44ch; }
+  .err-block {
+    border: 1px solid rgba(255,75,62,.4); background: rgba(255,75,62,.05);
+    padding: 16px; display: grid; gap: 8px;
+  }
+  .err-block .t { color: var(--live); }
+  .err-block .d { color: var(--ink-dim); font-size: 14px; }
+  .skel { background: var(--panel-2); height: 14px; animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+
+  /* ---------- table ---------- */
+  table { width: 100%; border-collapse: collapse; text-align: left; }
+  th { color: var(--ink-mute); font-weight: 400; padding: 10px 16px; }
+  td { padding: 12px 16px; border-top: 1px solid var(--line); }
+  tr.leader td { background: rgba(198,248,50,.05); }
+
+  /* ---------- live match demo ---------- */
+  .match-grid { display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .board { display: grid; grid-template-columns: repeat(8, 1fr); aspect-ratio: 1; border: 1px solid var(--line); }
+  .sq { position: relative; display: grid; place-items: center; font-size: clamp(16px, 3.4vw, 30px); color: var(--ink); user-select: none; }
+  .sq.l { background: var(--board-light); color: #2a2f22; }
+  .sq.d { background: var(--board-dark); color: #e6ead7; }
+  .sq.last::after { content: ""; position: absolute; inset: 0; background: rgba(198,248,50,.28); }
+  .sq.check::after { content: ""; position: absolute; inset: 0; background: rgba(255,75,62,.42); }
+  .sq span { position: relative; z-index: 1; }
+
+  .clock-wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px; border-bottom: 1px solid var(--line); }
+  .clock { font-family: var(--font-mono); font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1; }
+  .clock.active { color: var(--ink); }
+  .clock.idle { color: var(--ink-dim); }
+  .clock.low { color: var(--live); }
+  .pgn { max-height: 260px; overflow-y: auto; padding: 8px; display: flex; flex-wrap: wrap; gap: 2px 4px; align-content: flex-start; }
+  .pgn .move { font-family: var(--font-mono); font-size: 14px; padding: 3px 6px; color: var(--ink-dim); }
+  .pgn .move.no { color: var(--ink-mute); min-width: 32px; }
+  .pgn .move.cur { background: rgba(198,248,50,.1); color: var(--ink); }
+  .pgn .move:hover { background: var(--panel-2); color: var(--ink); cursor: pointer; }
+
+  /* ---------- motion ---------- */
+  .motion-row { display: flex; flex-wrap: wrap; gap: 16px; }
+  .motion-card { flex: 1 1 200px; background: var(--panel); border: 1px solid var(--line); padding: 16px; display: grid; gap: 12px; justify-items: start; }
+  .demo-bar { width: 100%; height: 4px; background: var(--line); position: relative; overflow: hidden; }
+  .demo-bar i { position: absolute; inset: 0; background: var(--acid); transform: translateX(-100%); }
+  .motion-card:hover .demo-bar i { transition: transform .6s var(--ease); transform: translateX(0); }
+  .stagger-item { opacity: 0; animation: rise .6s var(--ease) both; }
+
+  /* ---------- spacing ---------- */
+  .space-row { display: flex; align-items: center; gap: 16px; padding: 8px 0; border-bottom: 1px solid var(--line-soft); }
+  .space-row .bar { height: 16px; background: var(--acid); }
+  .space-row .lbl { font-family: var(--font-mono); font-size: 13px; color: var(--ink-dim); width: 90px; }
+
+  /* ---------- do/dont ---------- */
+  .dd { display: grid; gap: 8px; padding: 16px; border: 1px solid var(--line); background: var(--panel); }
+  .dd.good { border-left: 2px solid var(--acid); }
+  .dd.bad { border-left: 2px solid var(--live); }
+  .dd ul { list-style: none; display: grid; gap: 6px; color: var(--ink-dim); font-size: 14px; }
+
+  footer { border-top: 1px solid var(--line); background: var(--void-2); margin-top: 32px; }
+  .foot-in { max-width: 1440px; margin: 0 auto; padding: 24px 20px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; color: var(--ink-mute); }
+
+  .copied { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--acid); color: var(--void); padding: 10px 18px; z-index: 70; opacity: 0; pointer-events: none; transition: opacity .2s ease; }
+  .copied.show { opacity: 1; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .dot-live, .skel, .stagger-item, .spinner { animation: none !important; }
+    .stagger-item { opacity: 1; transform: none; }
+    .motion-card:hover .demo-bar i { transition: none; transform: translateX(0); }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <div class="mark">
+      <span class="mark-glyph">OT</span>
+      <span class="flex-col">
+        <span class="display mark-name">OVERTIME</span>
+        <span class="u-label" style="color:var(--ink-mute); margin-top:4px;">Design System · v1.0</span>
+      </span>
+    </div>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#colors" class="u-label">Color</a>
+      <a href="#type" class="u-label">Type</a>
+      <a href="#space" class="u-label">Space</a>
+      <a href="#controls" class="u-label">Controls</a>
+      <a href="#states" class="u-label">States</a>
+      <a href="#live" class="u-label">Live Match</a>
+      <a href="#motion" class="u-label">Motion</a>
+      <a href="#rules" class="u-label">Rules</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <div class="hero stagger">
+    <span class="u-label stagger-item" style="--i:0; color:var(--acid);">Kingdom of Chess · Tournament Module</span>
+    <h1 class="display stagger-item" style="--i:1;">Broadcast<br />Control Room</h1>
+    <p class="sub stagger-item" style="--i:2;">A dark instrument-panel system for live chess: near-black surfaces, hairline borders, one acid signal color, condensed display type and mono data. Formalized from the existing OVERTIME codebase.</p>
+    <div class="tags stagger-item" style="--i:3;">
+      <span class="chip u-label" style="color:var(--acid);"><span class="dot"></span>Radius 0 — locked</span>
+      <span class="chip u-label" style="color:var(--ink-dim);"><span class="dot"></span>No shadows</span>
+      <span class="chip u-label" style="color:var(--ink-dim);"><span class="dot"></span>4px grid</span>
+      <span class="chip u-label" style="color:var(--live);"><span class="dot"></span>AA contrast checked</span>
+    </div>
+  </div>
+
+  <!-- COLOR -->
+  <section id="colors">
+    <div class="sec-head">
+      <h2 class="display">Color</h2>
+      <p>4-step surface ramp · 1 accent · 1 alert · click to copy</p>
+    </div>
+    <div class="grid g3">
+      <button class="sw" data-hex="#0a0b0d"><div class="sw-color" style="background:#0a0b0d"></div><div class="sw-meta"><span class="hex">#0a0b0d</span><span class="u-label role">void — app bg</span></div></button>
+      <button class="sw" data-hex="#0d0f13"><div class="sw-color" style="background:#0d0f13"></div><div class="sw-meta"><span class="hex">#0d0f13</span><span class="u-label role">void-2 — recessed</span></div></button>
+      <button class="sw" data-hex="#111419"><div class="sw-color" style="background:#111419"></div><div class="sw-meta"><span class="hex">#111419</span><span class="u-label role">panel — cards</span></div></button>
+      <button class="sw" data-hex="#171b21"><div class="sw-color" style="background:#171b21"></div><div class="sw-meta"><span class="hex">#171b21</span><span class="u-label role">panel-2 — raised</span></div></button>
+      <button class="sw" data-hex="#262b33"><div class="sw-color" style="background:#262b33"></div><div class="sw-meta"><span class="hex">#262b33</span><span class="u-label role">line — 1px borders</span></div></button>
+      <button class="sw" data-hex="#f2f4ee"><div class="sw-color" style="background:#f2f4ee"></div><div class="sw-meta"><span class="hex">#f2f4ee</span><span class="u-label role">ink — 17.3:1</span></div></button>
+      <button class="sw" data-hex="#9ba3ad"><div class="sw-color" style="background:#9ba3ad"></div><div class="sw-meta"><span class="hex">#9ba3ad</span><span class="u-label role">ink-dim — 7.7:1</span></div></button>
+      <button class="sw" data-hex="#7c848e"><div class="sw-color" style="background:#7c848e"></div><div class="sw-meta"><span class="hex">#7c848e</span><span class="u-label role">ink-mute* — 4.9:1 on panel</span></div></button>
+      <button class="sw" data-hex="#c6f832"><div class="sw-color" style="background:#c6f832"></div><div class="sw-meta"><span class="hex">#c6f832</span><span class="u-label role">acid — accent/signal</span></div></button>
+      <button class="sw" data-hex="#95c314"><div class="sw-color" style="background:#95c314"></div><div class="sw-meta"><span class="hex">#95c314</span><span class="u-label role">acid-deep — hover</span></div></button>
+      <button class="sw" data-hex="#ff4b3e"><div class="sw-color" style="background:#ff4b3e"></div><div class="sw-meta"><span class="hex">#ff4b3e</span><span class="u-label role">live — alert 5.8:1</span></div></button>
+      <button class="sw" data-hex="#d9ddc8"><div class="sw-color" style="background:#d9ddc8"></div><div class="sw-meta"><span class="hex">#d9ddc8</span><span class="u-label role">board-light — proposed</span></div></button>
+    </div>
+    <p style="margin-top:16px; color:var(--ink-dim); font-size:14px;">
+      * <span class="mono" style="color:var(--ink);">#7c848e</span> is the proposed bump over the codebase's <span class="mono">#737b85</span> — the original lands at 4.3:1 on <span class="mono">panel</span>, just under WCAG AA for 11px labels.
+    </p>
+  </section>
+
+  <!-- TYPE -->
+  <section id="type">
+    <div class="sec-head">
+      <h2 class="display">Typography</h2>
+      <p>Archivo variable (wdth axis) · JetBrains Mono · hierarchy: display → label → data</p>
+    </div>
+    <div class="grid">
+      <div class="spec">
+        <span class="display" style="font-size:clamp(2rem,5vw,3.4rem);">Find Opponent</span>
+        <span class="meta u-label">.display — archivo 800 · wdth 112 · uppercase · lh 0.94</span>
+      </div>
+      <div class="spec">
+        <span class="numeral" style="font-size:clamp(3.4rem,10vw,7rem);">12–04</span>
+        <span class="meta u-label">.numeral — archivo 900 · wdth 64 · tabular · lh 0.76</span>
+      </div>
+      <div class="grid g2">
+        <div class="spec">
+          <span class="u-label" style="color:var(--ink);">Round 04 · Board 02</span>
+          <span class="meta u-label">.u-label — jetbrains 11px · 0.16em · uppercase</span>
+        </div>
+        <div class="spec">
+          <span class="mono" style="font-size:clamp(1.8rem,4vw,2.6rem); font-weight:600;">04:37</span>
+          <span class="meta u-label">.mono — clocks, pgn, points · tabular-nums</span>
+        </div>
+      </div>
+      <div class="spec">
+        <p style="max-width:64ch;">Body copy: students join an open tournament, get auto-matched, and play on a real-time board with a shared clock. Results feed the leaderboard.</p>
+        <span class="meta u-label">body — archivo 400 · 16px · lh 1.5</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPACE -->
+  <section id="space">
+    <div class="sec-head">
+      <h2 class="display">Space &amp; Shape</h2>
+      <p>4px base grid · radius 0 · depth via borders, never shadow</p>
+    </div>
+    <div class="grid g2">
+      <div class="panel" style="padding:16px 20px;">
+        <div class="space-row"><span class="lbl">space-1 · 4</span><span class="bar" style="width:4px"></span></div>
+        <div class="space-row"><span class="lbl">space-2 · 8</span><span class="bar" style="width:8px"></span></div>
+        <div class="space-row"><span class="lbl">space-3 · 12</span><span class="bar" style="width:12px"></span></div>
+        <div class="space-row"><span class="lbl">space-4 · 16</span><span class="bar" style="width:16px"></span></div>
+        <div class="space-row"><span class="lbl">space-6 · 24</span><span class="bar" style="width:24px"></span></div>
+        <div class="space-row"><span class="lbl">space-8 · 32</span><span class="bar" style="width:32px"></span></div>
+        <div class="space-row"><span class="lbl">space-12 · 48</span><span class="bar" style="width:48px"></span></div>
+        <div class="space-row"><span class="lbl">space-16 · 64</span><span class="bar" style="width:64px"></span></div>
+        <div class="space-row" style="border-bottom:0;"><span class="lbl" style="color:var(--acid);">optical · 3</span><span class="bar" style="width:3px"></span><span class="u-label" style="color:var(--ink-mute);">scorebug bars only</span></div>
+      </div>
+      <div class="panel" style="display:grid; gap:16px; padding:20px;">
+        <div class="panel" style="padding:16px;">
+          <span class="u-label" style="color:var(--ink);">Depth = surface step</span>
+          <p style="font-size:14px; color:var(--ink-dim); margin-top:8px;">void → void-2 → panel → panel-2, separated by 1px <span class="mono">line</span>. No <span class="mono">box-shadow</span>, no glow.</p>
+        </div>
+        <div class="grid g3">
+          <div style="border:1px solid var(--line); padding:12px; text-align:center;"><span class="u-label" style="color:var(--ink-mute);">radius 0</span></div>
+          <div style="border:1px solid var(--line); padding:12px; text-align:center;"><span class="u-label" style="color:var(--ink-mute);">border 1px</span></div>
+          <div style="border:2px solid var(--acid); padding:12px; text-align:center;"><span class="u-label" style="color:var(--acid);">focus 2px</span></div>
+        </div>
+        <div class="panel" style="padding:0; overflow:hidden;">
+          <div class="stripes" style="height:3px;"></div>
+          <div class="panel-head"><span class="u-label">Module head</span><span class="u-label" style="color:var(--ink-mute);">meta</span></div>
+          <div style="padding:14px 16px;" class="row-hit"><span class="u-label" style="color:var(--ink-dim);">row-hit · hover me</span></div>
+          <div style="padding:14px 16px; border-top:1px solid var(--line);" class="row-hit"><span class="u-label" style="color:var(--ink-dim);">row-hit · hover me</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTROLS -->
+  <section id="controls">
+    <div class="sec-head">
+      <h2 class="display">Controls</h2>
+      <p>48px targets · one acid primary per view</p>
+    </div>
+    <div class="grid g2">
+      <div class="panel" style="padding:20px; display:flex; flex-wrap:wrap; gap:12px; align-items:center;">
+        <button class="btn btn-primary">Find Opponent</button>
+        <button class="btn btn-outline">View Standings</button>
+        <button class="btn btn-ghost">Cancel</button>
+        <button class="btn btn-danger">Resign</button>
+        <button class="btn btn-primary is-disabled" aria-disabled="true">Join Tournament</button>
+        <button class="btn btn-primary" id="loadBtn" aria-busy="false"><span class="lbl">Save</span></button>
+        <span class="u-label" style="color:var(--ink-mute); width:100%;">Last: loading variant (click Save)</span>
+      </div>
+      <div class="panel" style="padding:20px; display:flex; flex-wrap:wrap; gap:10px; align-content:flex-start;">
+        <span class="chip u-label" style="color:var(--acid);"><span class="dot" style="animation:blink 1.25s step-end infinite;"></span>Open</span>
+        <span class="chip u-label" style="color:var(--live);"><span class="dot" style="animation:blink 1.25s step-end infinite;"></span>Live</span>
+        <span class="chip u-label" style="color:var(--ink-mute);"><span class="dot"></span>Draft</span>
+        <span class="chip u-label" style="color:var(--ink-dim);"><span class="dot"></span>Final</span>
+        <span class="chip u-label" style="color:var(--acid);"><span class="dot"></span>Win 1.0</span>
+        <span class="chip u-label" style="color:var(--ink-dim);"><span class="dot"></span>Draw ½</span>
+        <span class="chip u-label" style="color:var(--live);"><span class="dot"></span>Loss 0.0</span>
+        <span class="u-label" style="color:var(--ink-mute); width:100%; margin-top:6px;">Status chips — square, 1px ring, always paired with text</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATES -->
+  <section id="states">
+    <div class="sec-head">
+      <h2 class="display">States</h2>
+      <p>loading · empty · error — required on every screen</p>
+    </div>
+    <div class="grid g3">
+      <div class="panel">
+        <div class="panel-head"><span class="u-label">Standings</span><span class="u-label" style="color:var(--ink-mute);">loading</span></div>
+        <div style="padding:16px; display:grid; gap:14px;">
+          <div class="skel" style="width:70%"></div>
+          <div class="skel" style="width:100%"></div>
+          <div class="skel" style="width:85%"></div>
+          <div class="skel" style="width:60%"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="u-label">Tournaments</span><span class="u-label" style="color:var(--ink-mute);">empty</span></div>
+        <div class="state-block">
+          <h4 class="display">No open tournaments</h4>
+          <p>Nothing is running right now. Check back when the coach opens a bracket.</p>
+          <button class="btn btn-primary" style="margin-top:6px;">Refresh</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="u-label">Match history</span><span class="u-label" style="color:var(--ink-mute);">error</span></div>
+        <div style="padding:16px;">
+          <div class="err-block">
+            <span class="u-label t">Couldn’t load results</span>
+            <span class="d">Server responded 503. Your session is fine — try again.</span>
+            <button class="btn btn-outline" style="justify-self:start; margin-top:6px;">Retry</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIVE -->
+  <section id="live">
+    <div class="sec-head">
+      <h2 class="display">Live Match</h2>
+      <p>headline screen — board palette, shared clock, PGN panel</p>
+    </div>
+    <div class="match-grid">
+      <div class="panel">
+        <div class="panel-head"><span class="u-label">Board · board-light / board-dark</span><span class="u-label" style="color:var(--acid);">last move</span></div>
+        <div class="board" id="board" role="img" aria-label="Chess position sample"></div>
+      </div>
+      <div class="panel" style="display:flex; flex-direction:column;">
+        <div class="clock-wrap">
+          <span style="display:grid; gap:4px;">
+            <span class="u-label" style="color:var(--ink-mute);">Seed 02 · Ananya</span>
+            <span class="display" style="font-size:20px;">ANANYA</span>
+          </span>
+          <span class="clock active" id="clkA">04:37</span>
+        </div>
+        <div class="clock-wrap">
+          <span style="display:grid; gap:4px;">
+            <span class="u-label" style="color:var(--ink-mute);">Seed 07 · Rohan</span>
+            <span class="display" style="font-size:20px;">ROHAN</span>
+          </span>
+          <span class="clock idle" id="clkB">04:52</span>
+        </div>
+        <div class="panel-head" style="border-top:1px solid var(--line);"><span class="u-label">Move list · PGN</span><span class="u-label" style="color:var(--ink-mute);">click a ply</span></div>
+        <div class="pgn" id="pgn"></div>
+        <div style="margin-top:auto; padding:16px; border-top:1px solid var(--line); display:flex; gap:10px;">
+          <button class="btn btn-primary" style="flex:1;">Find Opponent</button>
+          <button class="btn btn-danger">Resign</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:24px;">
+      <div class="panel-head"><span class="u-label">Leaderboard · example</span><span class="u-label" style="color:var(--ink-mute);">win 1 · draw ½ · loss 0</span></div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr class="u-label"><th>#</th><th>Player</th><th style="text-align:right;">W–D–L</th><th style="text-align:right;">Buchholz</th><th style="text-align:right;">Pts</th></tr></thead>
+          <tbody id="lb"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- MOTION -->
+  <section id="motion">
+    <div class="sec-head">
+      <h2 class="display">Motion</h2>
+      <p>120 / 180 / 220 / 600ms · cubic-bezier(0.2, 0.75, 0.25, 1) · no scroll animation</p>
+    </div>
+    <div class="motion-row">
+      <div class="motion-card">
+        <span class="u-label" style="color:var(--ink);">row-hit · 220ms</span>
+        <div class="demo-bar"><i></i></div>
+        <span class="u-label" style="color:var(--ink-mute);">hover card → accent bar</span>
+      </div>
+      <div class="motion-card">
+        <span class="u-label" style="color:var(--ink);">dot-live · 1.25s step</span>
+        <span style="display:flex; align-items:center; gap:8px;"><span class="dot-live"></span><span class="u-label" style="color:var(--live);">Live</span></span>
+        <span class="u-label" style="color:var(--ink-mute);">status only — never decorative</span>
+      </div>
+      <div class="motion-card">
+        <span class="u-label" style="color:var(--ink);">stagger · 75ms step</span>
+        <div id="stg" style="display:grid; gap:6px; width:100%;">
+          <span class="stagger-item" style="--i:0; height:8px; background:var(--panel-2);"></span>
+          <span class="stagger-item" style="--i:1; height:8px; background:var(--panel-2);"></span>
+          <span class="stagger-item" style="--i:2; height:8px; background:var(--panel-2);"></span>
+        </div>
+        <button class="btn btn-ghost" style="padding:8px 12px; min-height:36px;" id="replay">Replay</button>
+      </div>
+    </div>
+    <p class="u-label" style="margin-top:16px; color:var(--ink-mute);">prefers-reduced-motion disables blink, ticker, stagger, spinners — enforced in globals.css:232</p>
+  </section>
+
+  <!-- RULES -->
+  <section id="rules">
+    <div class="sec-head">
+      <h2 class="display">Rules</h2>
+      <p>do / don't · AI-slop guardrails</p>
+    </div>
+    <div class="grid g2">
+      <div class="dd good">
+        <span class="u-label" style="color:var(--acid);">Do</span>
+        <ul>
+          <li>— Square corners, 1px hairline borders</li>
+          <li>— One acid primary per view</li>
+          <li>— .u-label for every piece of meta text</li>
+          <li>— .mono + tabular-nums for changing numbers</li>
+          <li>— clamp() type for fluid headings/clocks</li>
+          <li>— Color always paired with a text label</li>
+        </ul>
+      </div>
+      <div class="dd bad">
+        <span class="u-label" style="color:var(--live);">Don't</span>
+        <ul>
+          <li>— rounded-* or shadow-* classes</li>
+          <li>— a second accent hue (no blue, no purple)</li>
+          <li>— gradient fills beyond the body's static wash</li>
+          <li>— glassmorphism / blur cards</li>
+          <li>— scroll-triggered animation</li>
+          <li>— .display for sentences, color-only status</li>
+        </ul>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:16px; padding:16px; display:flex; gap:12px; align-items:flex-start;">
+      <span class="u-label" style="color:var(--acid); white-space:nowrap;">Slop check</span>
+      <span style="font-size:14px; color:var(--ink-dim);">Current codebase passes: no purple-blue defaults, no gratuitous rounded cards, no glass panels, no scroll-jank, personality-rich type. Single finding: <span class="mono" style="color:var(--ink);">ink-mute</span> at 4.3:1 on panel → bump to <span class="mono" style="color:var(--acid);">#7c848e</span>.</span>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="foot-in">
+    <span class="u-label">Kingdom of Chess · Tournament Module · Design System v1.0</span>
+    <span class="u-label">tokens → design-tokens.json · rationale → DESIGN.md · source → app/globals.css</span>
+  </div>
+</footer>
+
+<div class="copied u-label" id="toast">Copied</div>
+
+<script>
+  // copy hex on swatch click
+  const toast = document.getElementById("toast");
+  document.querySelectorAll(".sw").forEach((el) => {
+    el.addEventListener("click", () => {
+      const hex = el.dataset.hex;
+      (navigator.clipboard ? navigator.clipboard.writeText(hex) : Promise.resolve()).finally(() => {
+        toast.textContent = "Copied " + hex;
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 1200);
+      });
+    });
+  });
+
+  // active tab on scroll
+  const links = [...document.querySelectorAll("nav.tabs a")];
+  const secs = links.map((a) => document.querySelector(a.getAttribute("href"))).filter(Boolean);
+  const spy = () => {
+    let cur = secs[0];
+    for (const s of secs) if (s.getBoundingClientRect().top <= 120) cur = s;
+    links.forEach((a) => a.classList.toggle("active", a.getAttribute("href") === "#" + cur.id));
+  };
+  document.addEventListener("scroll", spy, { passive: true });
+  spy();
+
+  // loading button demo
+  const loadBtn = document.getElementById("loadBtn");
+  loadBtn.addEventListener("click", () => {
+    const lbl = loadBtn.querySelector(".lbl");
+    if (loadBtn.dataset.busy) return;
+    loadBtn.dataset.busy = "1";
+    loadBtn.setAttribute("aria-busy", "true");
+    loadBtn.innerHTML = '<span class="spinner"></span><span class="lbl">Saving</span>';
+    setTimeout(() => {
+      loadBtn.removeAttribute("aria-busy");
+      delete loadBtn.dataset.busy;
+      loadBtn.innerHTML = '<span class="lbl">Saved</span>';
+      setTimeout(() => { loadBtn.innerHTML = '<span class="lbl">Save</span>'; }, 1400);
+    }, 1600);
+  });
+
+  // board sample
+  const glyphs = ["\u265C","\u265E","\u265D","\u265B","\u265A","\u265D","\u265E","\u265C",
+    "\u265F","\u265F","\u265F","\u265F","\u265F","\u265F","\u265F","\u265F",
+    "","","","","","","","",
+    "","","","\u2659","","","","",
+    "","","","","","\u2659","","",
+    "","","","","","","","",
+    "\u2656","\u2657","\u2658","\u265A","","\u2658","\u2657","\u2656"];
+  const board = document.getElementById("board");
+  glyphs.concat(["\u2659","","","","","","","\u2655"]).forEach((g, i) => {
+    const r = Math.floor(i / 8), c = i % 8;
+    const sq = document.createElement("div");
+    sq.className = "sq " + ((r + c) % 2 === 0 ? "l" : "d");
+    if ([19, 27, 35, 43, 51].includes(i)) sq.classList.add("last");
+    if (i === 4) sq.classList.add("check");
+    if (g) { const s = document.createElement("span"); s.textContent = g; sq.appendChild(s); }
+    board.appendChild(sq);
+  });
+
+  // pgn panel
+  const plies = ["e4","e5","Nf3","Nc6","Bb5","a6","Ba4","Nf6","O-O","Be7","Re1","b5","Bb3","d6","c3","O-O","h3","Nb8","d4","Nbd7"];
+  const pgn = document.getElementById("pgn");
+  plies.forEach((p, i) => {
+    if (i % 2 === 0) {
+      const no = document.createElement("span");
+      no.className = "move no";
+      no.textContent = (i / 2 + 1) + ".";
+      pgn.appendChild(no);
+    }
+    const m = document.createElement("button");
+    m.className = "move" + (i === plies.length - 1 ? " cur" : "");
+    m.style.border = "none"; m.style.background = i === plies.length - 1 ? "rgba(198,248,50,.1)" : "transparent";
+    m.textContent = p;
+    m.addEventListener("click", () => {
+      pgn.querySelectorAll(".move").forEach((x) => { x.classList.remove("cur"); if (!x.classList.contains("no")) x.style.background = "transparent"; });
+      m.classList.add("cur"); m.style.background = "rgba(198,248,50,.1)";
+    });
+    pgn.appendChild(m);
+  });
+
+  // live clock demo (your turn ticks)
+  let tA = 277, tB = 292, turn = "A";
+  const clkA = document.getElementById("clkA"), clkB = document.getElementById("clkB");
+  const fmt = (s) => Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+  setInterval(() => {
+    if (turn === "A") { tA = Math.max(0, tA - 1); } else { tB = Math.max(0, tB - 1); }
+    turn = turn === "A" ? "B" : "A";
+    clkA.textContent = fmt(tA); clkB.textContent = fmt(tB);
+    clkA.className = "clock " + (tA <= 30 ? "low" : turn === "A" ? "active" : "idle");
+    clkB.className = "clock " + (tB <= 30 ? "low" : turn === "B" ? "active" : "idle");
+  }, 1000);
+
+  // leaderboard sample
+  const rows = [
+    ["01","Ananya","A. Kulkarni",3,1,0,12.5,4],
+    ["02","Rohan","R. Iyer",3,0,1,10.0,3],
+    ["03","Meera","M. Nair",2,1,1,9.5,2],
+    ["04","Vivaan","V. Sharma",1,0,3,6.0,1],
+    ["05","Saanvi","S. Bose",0,0,4,4.0,0]
+  ];
+  document.getElementById("lb").innerHTML = rows.map((r, i) => `
+    <tr class="${i === 0 ? "leader row-hit" : "row-hit"}">
+      <td class="u-label" style="color:var(--ink-mute);">${r[0]}</td>
+      <td><span style="display:grid;">
+        <span style="font-size:14px; font-weight:700; color:${i < 2 ? "var(--acid)" : "var(--ink)"};">${r[1]}</span>
+        <span class="u-label" style="color:var(--ink-mute); margin-top:4px;">${r[2]}</span>
+      </span></td>
+      <td style="text-align:right;"><span class="mono" style="font-size:14px; color:var(--ink-dim);">${r[3]}–${r[4]}–${r[5]}</span></td>
+      <td style="text-align:right;"><span class="mono" style="font-size:14px; color:var(--ink-dim);">${r[6].toFixed(1)}</span></td>
+      <td style="text-align:right;"><span class="mono" style="font-size:14px; font-weight:700;">${r[7]}</span></td>
+    </tr>`).join("");
+
+  // stagger replay
+  document.getElementById("replay").addEventListener("click", () => {
+    document.querySelectorAll("#stg .stagger-item").forEach((el) => {
+      el.style.animation = "none"; void el.offsetWidth; el.style.animation = "";
+    });
+  });
+</script>
+</body>
+</html>

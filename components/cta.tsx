@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 type Variant = "primary" | "outline";
 
 const base =
-  "inline-flex items-center gap-3 px-6 py-3.5 text-sm font-bold uppercase tracking-widest transition-colors";
+  "inline-flex items-center gap-3 px-6 py-3.5 text-sm font-bold uppercase tracking-widest transition-colors btn-press";
 
 const styles: Record<Variant, string> = {
   primary: "bg-acid text-void hover:bg-acid-deep",

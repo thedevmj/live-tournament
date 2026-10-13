@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useSyncExternalStore, useState } from "react";
+import { useEffect, useSyncExternalStore, useState, useRef } from "react";
 
 const reducedMotionQuery =
   typeof window !== "undefined"
@@ -35,18 +35,30 @@ export function LiveClock({
     const [m, s] = initial.split(":").map(Number);
     return m * 60 + (Number.isFinite(s) ? s : 0);
   });
+  const [tick, setTick] = useState(0);
   const reducedMotion = usePrefersReducedMotion();
+  const prevSecondsRef = useRef(seconds);
 
   useEffect(() => {
     if (reducedMotion) return;
     const id = setInterval(() => {
-      setSeconds((current) => Math.max(0, current - 1));
+      setSeconds((current) => {
+        const next = Math.max(0, current - 1);
+        if (next !== current && !reducedMotion) {
+          setTick((t) => t + 1);
+        }
+        return next;
+      });
     }, 1000);
     return () => clearInterval(id);
   }, [reducedMotion]);
 
   return (
-    <span className={className} aria-label="Game clock, counting down">
+    <span
+      className={`${className} ${!reducedMotion && tick > 0 ? "tick-animation" : ""}`}
+      aria-label="Game clock, counting down"
+      style={{ "--tick": tick } as React.CSSProperties}
+    >
       {fromSeconds(seconds)}
     </span>
   );

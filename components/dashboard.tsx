@@ -1,6 +1,9 @@
+"use client";
+
 import type { ReactNode } from "react";
 import type { Match, PulseEvent, Side, Standing } from "@/lib/tournament";
 import { LiveClock } from "@/components/live-clock";
+import { useState, useEffect, useRef } from "react";
 
 export function Module({
   title,
@@ -14,7 +17,7 @@ export function Module({
   id?: string;
 }) {
   return (
-    <section id={id} className="panel flex scroll-mt-24 flex-col">
+    <section id={id} className="panel flex scroll-mt-24 flex-col slide-up">
       <header className="panel-head">
         <h2 className="u-label text-ink">{title}</h2>
         {meta && <span className="u-label text-ink-mute">{meta}</span>}
@@ -78,11 +81,11 @@ export function Scorebug({ match }: { match: Match }) {
   const aShare = total ? (a.rounds / total) * 100 : 50;
 
   return (
-    <section className="panel scanlines relative overflow-hidden">
+    <section className="panel scanlines relative overflow-hidden slide-up">
       <div className="stripes h-[3px]" aria-hidden="true" />
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-line bg-panel-2/60 px-4 py-2.5 md:px-6">
         <span className="flex items-center gap-2">
-          <span className="dot-live h-2 w-2 bg-live" aria-hidden="true" />
+          <span className="dot-live live-indicator h-2 w-2 bg-live" aria-hidden="true" />
           <span className="u-label text-live">Live</span>
         </span>
         <span className="u-label text-ink">{match.stage}</span>
@@ -103,7 +106,7 @@ export function Scorebug({ match }: { match: Match }) {
 
       <div className="grid gap-8 px-5 py-8 md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-10 md:px-8 md:py-10">
         <SideBlock side={a} align="right" />
-        <div className="flex flex-col items-center justify-center gap-3 border-y border-line py-6 md:border-y-0 md:px-12">
+        <div className="flex flex-col items-center justify-center gap-3 border-y border-line py-6 md:border-y-0 md:px-12 scale-in">
           <span className="u-label text-ink-mute">Game clock</span>
           {match.status === "live" && match.clock ? (
             <LiveClock
@@ -120,7 +123,7 @@ export function Scorebug({ match }: { match: Match }) {
         <SideBlock side={b} align="left" />
       </div>
 
-      <div className="border-t border-line px-5 py-4 md:px-8">
+      <div className="border-t border-line px-5 py-4 md:px-8 slide-up" style={{ animationDelay: '100ms' }}>
         <div className="flex items-center justify-between">
           <span className="u-label text-ink-dim">Round history</span>
           <span className="u-label text-ink-mute">First to 13</span>
@@ -145,12 +148,24 @@ export function MatchRow({ match }: { match: Match }) {
         ? `${match.a.score}–${match.b.score}`
         : "vs";
 
+  const [flash, setFlash] = useState(false);
+  const prevScoreRef = useRef(score);
+
+  useEffect(() => {
+    if (match.status === "live" && prevScoreRef.current !== score) {
+      setFlash(true);
+      const timer = setTimeout(() => setFlash(false), 300);
+      return () => clearTimeout(timer);
+    }
+    prevScoreRef.current = score;
+  }, [score, match.status]);
+
   return (
     <div className="row-hit flex flex-col gap-2 border-b border-line px-4 py-3.5 last:border-b-0 md:flex-row md:items-center md:gap-5 md:px-5">
       <div className="flex min-w-0 items-center gap-3">
         {match.status === "live" ? (
           <span className="flex items-center gap-1.5">
-            <span className="dot-live h-1.5 w-1.5 bg-live" aria-hidden="true" />
+            <span className="dot-live live-indicator h-1.5 w-1.5 bg-live" aria-hidden="true" />
             <span className="u-label text-live">Live</span>
           </span>
         ) : match.status === "up" ? (
@@ -170,7 +185,7 @@ export function MatchRow({ match }: { match: Match }) {
         <span
           className={`mono text-sm font-bold ${
             match.status === "up" ? "text-ink-mute" : "text-acid"
-          }`}
+          } ${flash ? "score-flash" : ""}`}
         >
           {score}
         </span>
@@ -196,7 +211,7 @@ export function MatchRow({ match }: { match: Match }) {
 export function Standings({ rows }: { rows: Standing[] }) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full border-collapse text-left">
+      <table className="w-full border-collapse text-left stagger">
         <caption className="sr-only">Pool B standings</caption>
         <thead>
           <tr className="u-label text-ink-mute">
@@ -221,12 +236,13 @@ export function Standings({ rows }: { rows: Standing[] }) {
           </tr>
         </thead>
         <tbody>
-          {rows.map((r) => (
+          {rows.map((r, i) => (
             <tr
               key={r.tag}
+              style={{ "--i": i } as React.CSSProperties}
               className={`row-hit border-t border-line first:border-t-0 ${
                 r.rank === 1 ? "bg-acid/[0.05]" : ""
-              }`}
+              } slide-up`}
             >
               <td className="u-label px-4 py-3 text-ink-mute md:px-5">
                 {r.rank.toString().padStart(2, "0")}
@@ -273,11 +289,12 @@ export function Standings({ rows }: { rows: Standing[] }) {
 
 export function Pulse({ events }: { events: PulseEvent[] }) {
   return (
-    <ol className="flex flex-col">
-      {events.map((e) => (
+    <ol className="flex flex-col stagger">
+      {events.map((e, i) => (
         <li
           key={e.id}
-          className="flex gap-3 border-t border-line px-4 py-3 first:border-t-0 md:px-5"
+          style={{ "--i": i } as React.CSSProperties}
+          className="flex gap-3 border-t border-line px-4 py-3 first:border-t-0 md:px-5 slide-up"
         >
           <span className="mono mt-0.5 shrink-0 text-xs text-acid">{e.time}</span>
           <span className="flex min-w-0 flex-col gap-1">

@@ -10,23 +10,14 @@ import {
   Pulse,
 } from "@/components/dashboard";
 import type { BracketSlot } from "@/lib/tournament";
-import {
-  featuredMatch,
-  liveMatches,
-  upcomingMatches,
-  finals,
-  standings,
-  standingsA,
-  tickerItems,
-  teamGrid,
-  schedule,
-  bracket,
-  pulse,
-} from "@/lib/tournament";
+import { countLiveMatches } from "@/lib/tournament";
+import { getTournamentState } from "@/lib/store";
 
 export const metadata: Metadata = {
   title: "OVERTIME — Circuit Major S04",
 };
+
+export const dynamic = "force-dynamic";
 
 const seq = (n: number) => ({ "--i": n }) as CSSProperties;
 
@@ -98,67 +89,90 @@ function BracketBox({ slot }: { slot: BracketSlot }) {
   );
 }
 
-export default function Home() {
-  const liveNow = [featuredMatch, ...liveMatches];
+export default async function Home() {
+  const state = await getTournamentState();
+  const {
+    featuredMatch,
+    liveMatches,
+    upcomingMatches,
+    finals,
+    standings,
+    standingsA,
+    tickerItems,
+    teamGrid,
+    schedule,
+    bracket,
+    pulse,
+  } = state;
+  const liveNow = [featuredMatch, ...liveMatches].filter(
+    (m) => m.status === "live",
+  );
   const upNext = [...upcomingMatches, ...finals];
 
   return (
     <>
-      <TopBar active="" />
+      <TopBar active="" liveCount={countLiveMatches(state)} />
       <Ticker items={tickerItems} />
 
-      {/* hero */}
-      <section className="mx-auto grid max-w-[1440px] items-center gap-10 px-5 pt-12 pb-16 md:px-8 md:pt-20 lg:grid-cols-[1fr_minmax(0,46rem)] lg:gap-16">
-        <div className="flex flex-col items-start gap-6">
-          <p className="u-label text-acid">Circuit Major · Season 04</p>
-          <h1 className="display text-[clamp(2.8rem,8vw,6.4rem)] text-ink">
-            Every round.
-            <br />
-            <span className="text-acid">One feed.</span>
-          </h1>
-          <p className="max-w-md text-base leading-relaxed text-ink-dim">
-            Twelve crews, four pools, seven days. Scores, brackets and
-            standings flip the instant the round does — no refresh, no delay.
-          </p>
-          <div className="flex flex-wrap items-center gap-3">
-            <CTA href="/live">
-              Enter control room
-              <span aria-hidden="true">→</span>
-            </CTA>
-            <CTA href="#schedule" variant="outline">
-              View schedule
-            </CTA>
-          </div>
-          <dl className="mt-2 grid w-full max-w-md grid-cols-3 gap-6 border-t border-line pt-6">
-            <div className="flex flex-col gap-1.5">
-              <dt className="u-label text-ink-mute">Runs</dt>
-              <dd className="numeral text-[clamp(1.3rem,2.5vw,1.7rem)] text-ink">
-                05–13
-              </dd>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <dt className="u-label text-ink-mute">Crews</dt>
-              <dd className="numeral text-[clamp(1.3rem,2.5vw,1.7rem)] text-ink">
-                12
-              </dd>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <dt className="u-label text-ink-mute">Prize</dt>
-              <dd className="numeral text-[clamp(1.3rem,2.5vw,1.7rem)] text-ink">
-                $1.2M
-              </dd>
-            </div>
-          </dl>
-        </div>
-        <Scorebug match={featuredMatch} />
-      </section>
+{/* hero */}
+       <section className="mx-auto grid max-w-[1440px] items-center gap-10 px-5 pt-12 pb-16 md:px-8 md:pt-20 lg:grid-cols-[1fr_minmax(0,46rem)] lg:gap-16 slide-up">
+         <div className="flex flex-col items-start gap-6 stagger">
+           <p style={seq(0)} className="u-label text-acid">Circuit Major · Season 04</p>
+           <h1 style={seq(1)} className="display text-[clamp(2.8rem,8vw,6.4rem)] text-ink">
+             Every round.
+             <br />
+             <span className="text-acid">One feed.</span>
+           </h1>
+           <p style={seq(2)} className="max-w-md text-base leading-relaxed text-ink-dim">
+             Twelve crews, four pools, seven days. Scores, brackets and
+             standings flip the instant the round does — no refresh, no delay.
+           </p>
+           <div style={seq(3)} className="flex flex-wrap items-center gap-3">
+             <CTA href="/live">
+               Enter control room
+               <span aria-hidden="true">→</span>
+             </CTA>
+             <CTA href="#schedule" variant="outline">
+               View schedule
+             </CTA>
+           </div>
+           <dl style={seq(4)} className="mt-2 grid w-full max-w-md grid-cols-3 gap-6 border-t border-line pt-6 stagger">
+             <div style={seq(0)} className="flex flex-col gap-1.5 slide-up">
+               <dt className="u-label text-ink-mute">Runs</dt>
+               <dd className="numeral text-[clamp(1.3rem,2.5vw,1.7rem)] text-ink">
+                 05–13
+               </dd>
+             </div>
+             <div style={seq(1)} className="flex flex-col gap-1.5 slide-up">
+               <dt className="u-label text-ink-mute">Crews</dt>
+               <dd className="numeral text-[clamp(1.3rem,2.5vw,1.7rem)] text-ink">
+                 12
+               </dd>
+             </div>
+             <div style={seq(2)} className="flex flex-col gap-1.5 slide-up">
+               <dt className="u-label text-ink-mute">Prize</dt>
+               <dd className="numeral text-[clamp(1.3rem,2.5vw,1.7rem)] text-ink">
+                 $1.2M
+               </dd>
+             </div>
+           </dl>
+         </div>
+         <Scorebug match={featuredMatch} />
+       </section>
 
       {/* live + pulse */}
-      <section id="live" className="mx-auto max-w-[1440px] px-5 md:px-8">
-        <SectionHead kicker="Right now" title="Live on air" meta="3 streams rolling" />
+      <section id="live" className="mx-auto max-w-[1440px] px-5 md:px-8 slide-up">
+        <SectionHead
+          kicker="Right now"
+          title="Live on air"
+          meta={`${liveNow.length} stream${liveNow.length === 1 ? "" : "s"} rolling`}
+        />
         <div className="stagger grid gap-4 lg:grid-cols-3">
           <div style={seq(0)} className="flex flex-col gap-4 lg:col-span-2">
-            <Module title="Live now" meta="2 matches in progress">
+            <Module
+              title="Live now"
+              meta={`${liveNow.length} match${liveNow.length === 1 ? "" : "es"} in progress`}
+            >
               {liveNow.map((m) => (
                 <MatchRow key={m.id} match={m} />
               ))}
@@ -178,14 +192,14 @@ export default function Home() {
       </section>
 
       {/* schedule */}
-      <section id="schedule" className="mx-auto max-w-[1440px] px-5 pt-20 md:px-8">
+      <section id="schedule" className="mx-auto max-w-[1440px] px-5 pt-20 md:px-8 slide-up">
         <SectionHead kicker="Schedule" title="This week" meta="All times CET · LAN Copenhagen" />
         <div className="stagger grid gap-4 md:grid-cols-3">
           {schedule.map((d, i) => (
             <article
               key={d.day}
               style={seq(i)}
-              className="panel flex scroll-mt-24 flex-col"
+              className="panel flex scroll-mt-24 flex-col slide-up"
             >
               <header className="panel-head">
                 <span className="display text-xl text-ink">{d.day}</span>
@@ -223,11 +237,11 @@ export default function Home() {
       </section>
 
       {/* bracket */}
-      <section id="bracket" className="mx-auto max-w-[1440px] px-5 pt-20 md:px-8">
+      <section id="bracket" className="mx-auto max-w-[1440px] px-5 pt-20 md:px-8 slide-up">
         <SectionHead kicker="Bracket" title="Road to the final" meta="Double elimination" />
         <div className="stagger grid gap-4 md:grid-cols-3">
           {bracket.map((round, i) => (
-            <div key={round.round} style={seq(i)} className="flex flex-col gap-3">
+            <div key={round.round} style={seq(i)} className="flex flex-col gap-3 slide-up">
               <div className="flex items-baseline justify-between">
                 <span className="display text-lg text-ink">{round.round}</span>
                 {round.note && (
@@ -245,7 +259,7 @@ export default function Home() {
       </section>
 
       {/* standings */}
-      <section id="standings" className="mx-auto max-w-[1440px] px-5 pt-20 md:px-8">
+      <section id="standings" className="mx-auto max-w-[1440px] px-5 pt-20 md:px-8 slide-up">
         <SectionHead kicker="Standings" title="Pools after week 4" meta="Top 2 advance" />
         <div className="stagger grid gap-4 md:grid-cols-2">
           <div style={seq(0)}>
@@ -262,14 +276,14 @@ export default function Home() {
       </section>
 
       {/* field */}
-      <section className="mx-auto max-w-[1440px] px-5 pt-20 md:px-8">
+      <section className="mx-auto max-w-[1440px] px-5 pt-20 md:px-8 slide-up">
         <SectionHead kicker="The field" title="All twelve crews" meta="Seeded by qualifiers" />
         <div className="stagger grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
           {teamGrid.map((t, i) => (
             <div
               key={t.tag}
               style={seq(i)}
-              className="group relative overflow-hidden border border-line bg-panel px-4 py-4 transition-colors hover:bg-panel-2"
+              className="group relative overflow-hidden border border-line bg-panel px-4 py-4 transition-colors hover:bg-panel-2 scale-in row-hit"
             >
               <span className="u-label text-ink-mute">#{i + 1}</span>
               <div className="display mt-1 text-2xl text-ink">{t.tag}</div>
@@ -284,7 +298,7 @@ export default function Home() {
       </section>
 
       {/* cta */}
-      <section className="relative mt-20 overflow-hidden border-y border-line py-14 md:py-20">
+      <section className="relative mt-20 overflow-hidden border-y border-line py-14 md:py-20 slide-up">
         <div className="stripes absolute inset-x-0 top-0 h-[3px]" aria-hidden="true" />
         <div className="mx-auto flex max-w-[1440px] flex-col items-start justify-between gap-8 px-5 md:flex-row md:items-center md:px-8">
           <h2 className="display text-[clamp(1.9rem,5vw,3.6rem)] text-ink">

@@ -9,28 +9,38 @@ import {
   Pulse,
   Stat,
 } from "@/components/dashboard";
-import {
-  featuredMatch,
-  liveMatches,
-  upcomingMatches,
-  finals,
-  standings,
-  pulse,
-  tickerItems,
-} from "@/lib/tournament";
+import { countLiveMatches } from "@/lib/tournament";
+import { getTournamentState } from "@/lib/store";
 
 export const metadata: Metadata = {
   title: "Live",
 };
 
-const seq = (n: number) => ({ "--i": n }) as CSSProperties;
-const allMatches = [featuredMatch, ...liveMatches, ...upcomingMatches, ...finals];
-const railMatches = allMatches.filter((m) => m.id !== featuredMatch.id);
+export const dynamic = "force-dynamic";
 
-export default function LivePage() {
+const seq = (n: number) => ({ "--i": n }) as CSSProperties;
+
+export default async function LivePage() {
+  const state = await getTournamentState();
+  const {
+    featuredMatch,
+    liveMatches,
+    upcomingMatches,
+    finals,
+    standings,
+    pulse,
+    tickerItems,
+  } = state;
+  const allMatches = [featuredMatch, ...liveMatches, ...upcomingMatches, ...finals];
+  const railMatches = allMatches.filter((m) => m.id !== featuredMatch.id);
+  const liveCount = countLiveMatches(state);
+  const teamsLive = new Set(
+    allMatches.flatMap((m) => [m.a.tag, m.b.tag]),
+  ).size;
+
   return (
     <>
-      <TopBar active="Live" />
+      <TopBar active="Live" liveCount={liveCount} />
       <Ticker items={tickerItems} />
 
       <main className="mx-auto max-w-[1440px] px-5 pt-10 pb-20 md:px-8 md:pt-14">
@@ -42,16 +52,28 @@ export default function LivePage() {
             </h1>
           </div>
           <div className="flex items-center gap-8 md:gap-12">
-            <Stat value="03" label="Matches live" />
-            <Stat value="02" label="Up next" />
-            <Stat value="12" label="Teams live" />
+            <Stat
+              value={String(liveCount).padStart(2, "0")}
+              label="Matches live"
+            />
+            <Stat
+              value={String(upcomingMatches.length).padStart(2, "0")}
+              label="Up next"
+            />
+            <Stat
+              value={String(teamsLive).padStart(2, "0")}
+              label="Teams live"
+            />
           </div>
         </div>
 
         <div className="stagger mt-6 grid gap-4 lg:grid-cols-3">
           <div style={seq(0)} className="flex flex-col gap-4 lg:col-span-2">
             <Scorebug match={featuredMatch} />
-            <Module title="Live + up next" meta="Showing 5 of 12">
+            <Module
+              title="Live + up next"
+              meta={`Showing ${railMatches.length} of ${allMatches.length}`}
+            >
               {railMatches.map((m) => (
                 <MatchRow key={m.id} match={m} />
               ))}

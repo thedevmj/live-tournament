@@ -335,3 +335,40 @@ export const teamGrid: { tag: string; name: string; seed: number }[] = [
   { tag: "HALCYON", name: "Halcyon Reign", seed: 11 },
   { tag: "DUST", name: "Dust District", seed: 12 },
 ];
+
+export type TournamentState = {
+  featuredMatch: Match;
+  liveMatches: Match[];
+  upcomingMatches: Match[];
+  finals: Match[];
+  standings: Standing[];
+  standingsA: Standing[];
+  pulse: PulseEvent[];
+  tickerItems: string[];
+  schedule: ScheduleDay[];
+  bracket: BracketRound[];
+  teamGrid: { tag: string; name: string; seed: number }[];
+};
+
+export const defaultTournament: TournamentState = {
+  featuredMatch,
+  liveMatches,
+  upcomingMatches,
+  finals,
+  standings,
+  standingsA,
+  pulse,
+  tickerItems,
+  schedule,
+  bracket,
+  teamGrid,
+};
+
+export function countLiveMatches(state: TournamentState): number {
+  return [
+    state.featuredMatch,
+    ...state.liveMatches,
+    ...state.upcomingMatches,
+    ...state.finals,
+  ].filter((m) => m.status === "live").length;
+}

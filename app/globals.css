@@ -34,6 +34,18 @@
   --font-sans: var(--font-archivo);
   --font-display: var(--font-archivo);
   --font-mono: var(--font-jetbrains);
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --duration-100: 100ms;
+  --duration-150: 150ms;
+  --duration-200: 200ms;
+  --duration-250: 250ms;
+  --duration-300: 300ms;
+  --duration-400: 400ms;
+  --duration-500: 500ms;
 }
 
 @layer base {
@@ -145,7 +157,7 @@
 
   .link-nav {
     position: relative;
-    transition: color 0.18s ease;
+    transition: color var(--duration-150) var(--ease-out);
   }
 
   .link-nav[data-active="true"] {
@@ -155,8 +167,8 @@
   .row-hit {
     position: relative;
     transition:
-      background-color 0.18s ease,
-      transform 0.18s ease;
+      background-color var(--duration-150) var(--ease-out),
+      transform var(--duration-150) var(--ease-out);
   }
 
   .row-hit::before {
@@ -169,7 +181,7 @@
     background-color: var(--acid);
     transform: scaleY(0);
     transform-origin: center;
-    transition: transform 0.22s cubic-bezier(0.2, 0.75, 0.25, 1);
+    transition: transform var(--duration-200) var(--ease-out);
   }
 
   .row-hit:hover {
@@ -178,6 +190,12 @@
 
   .row-hit:hover::before {
     transform: scaleY(1);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .row-hit:active {
+      transform: scale(0.99);
+    }
   }
 
   .ticker__track {
@@ -194,8 +212,46 @@
   }
 
   .stagger > * {
-    animation: rise 0.6s cubic-bezier(0.2, 0.75, 0.25, 1) both;
+    animation: rise 0.6s var(--ease-out) both;
     animation-delay: calc(var(--i, 0) * 75ms);
+  }
+
+  .fade-in {
+    animation: fadeIn var(--duration-300) var(--ease-out) both;
+  }
+
+  .slide-up {
+    animation: slideUp var(--duration-400) var(--ease-out) both;
+  }
+
+  .slide-down {
+    animation: slideDown var(--duration-300) var(--ease-out) both;
+  }
+
+  .scale-in {
+    animation: scaleIn var(--duration-200) var(--ease-out) both;
+  }
+
+  .pulse-acid {
+    animation: pulseAcid 2s var(--ease-in-out) infinite;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .btn-press:active {
+      transform: scale(0.97);
+    }
+  }
+
+  .score-flash {
+    animation: scoreFlash var(--duration-300) var(--ease-out);
+  }
+
+  .live-indicator {
+    animation: livePulse 1.5s var(--ease-in-out) infinite;
+  }
+
+  .tick-animation {
+    animation: tickPulse var(--duration-150) var(--ease-out);
   }
 }
 
@@ -229,6 +285,91 @@
   }
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulseAcid {
+  0%, 100% {
+    box-shadow: 0 0 0 0 var(--acid);
+  }
+  50% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+}
+
+@keyframes livePulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes scoreFlash {
+  0% {
+    background-color: var(--acid);
+    color: var(--void);
+  }
+  100% {
+    background-color: transparent;
+    color: var(--acid);
+  }
+}
+
+@keyframes tickPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -236,12 +377,32 @@
 
   .ticker__track,
   .dot-live,
-  .stagger > * {
+  .stagger > *,
+  .fade-in,
+  .slide-up,
+  .slide-down,
+  .scale-in,
+  .pulse-acid,
+  .live-indicator,
+  .score-flash,
+  .tick-animation {
     animation: none !important;
   }
 
-  .stagger > * {
+  .stagger > *,
+  .fade-in,
+  .slide-up,
+  .slide-down,
+  .scale-in {
     opacity: 1;
+    transform: none;
+  }
+
+  .btn-press:active {
+    transform: none;
+  }
+
+  .row-hit:active {
     transform: none;
   }
 }

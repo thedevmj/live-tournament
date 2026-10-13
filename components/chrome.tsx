@@ -2,6 +2,7 @@ import Link from "next/link";
 
 export const NAV = [
   { label: "Live", href: "/live" },
+  { label: "Chess", href: "/chess" },
   { label: "Schedule", href: "/#schedule" },
   { label: "Bracket", href: "/#bracket" },
   { label: "Standings", href: "/#standings" },
@@ -9,8 +10,8 @@ export const NAV = [
 
 export function Mark() {
   return (
-    <Link href="/" className="group flex items-center gap-3">
-      <span className="grid h-7 w-8 place-items-center bg-acid font-bold text-void transition-transform duration-200 group-hover:-rotate-3">
+    <Link href="/" className="group flex items-center gap-3 slide-down">
+      <span className="grid h-7 w-8 place-items-center bg-acid font-bold text-void transition-transform var(--duration-200) var(--ease-out) group-hover:-rotate-3">
         <span className="mono text-[13px] leading-none">OT</span>
       </span>
       <span className="flex flex-col leading-none">
@@ -21,36 +22,47 @@ export function Mark() {
   );
 }
 
-export function TopBar({ active }: { active: string }) {
+export function TopBar({
+  active,
+  liveCount,
+}: {
+  active: string;
+  liveCount?: number;
+}) {
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-void/85 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-line bg-void/85 backdrop-blur-md slide-down">
       <div className="mx-auto flex h-16 max-w-[1440px] items-center gap-6 px-5 md:px-8">
         <Mark />
         <nav
           aria-label="Primary"
-          className="ml-auto hidden items-center gap-1 sm:flex"
+          className="ml-auto hidden items-center gap-1 sm:flex stagger"
         >
-          {NAV.map((item) => (
+          {NAV.map((item, i) => (
             <Link
               key={item.label}
               href={item.href}
               data-active={active === item.label}
+              style={{ "--i": i } as React.CSSProperties}
               className={`link-nav u-label px-3 py-2 ${
                 active === item.label ? "text-ink" : "text-ink-mute"
-              }`}
+              } btn-press`}
             >
               {item.label}
               {active === item.label && (
-                <span className="absolute inset-x-3 -bottom-[1px] h-[2px] bg-acid" />
+                <span className="absolute inset-x-3 -bottom-[1px] h-[2px] bg-acid scale-in" />
               )}
             </Link>
           ))}
         </nav>
-        <div className="ml-auto flex items-center gap-3 sm:ml-0">
-          <span className="hidden items-center gap-2 ring-1 ring-line bg-panel px-3 py-1.5 md:flex">
-            <span className="dot-live h-2 w-2 bg-live" aria-hidden="true" />
-            <span className="u-label text-ink-dim">2 matches live</span>
-          </span>
+        <div className="ml-auto flex items-center gap-3 sm:ml-0 fade-in">
+          {liveCount !== undefined && (
+            <span className="hidden items-center gap-2 ring-1 ring-line bg-panel px-3 py-1.5 md:flex">
+              <span className="dot-live live-indicator h-2 w-2 bg-live" aria-hidden="true" />
+              <span className="u-label text-ink-dim">
+                {liveCount} match{liveCount === 1 ? "" : "es"} live
+              </span>
+            </span>
+          )}
         </div>
       </div>
     </header>
@@ -95,7 +107,7 @@ export function Ticker({ items }: { items: string[] }) {
 
 export function Footer() {
   return (
-    <footer className="mt-16 border-t border-line bg-void-2">
+    <footer className="mt-16 border-t border-line bg-void-2 fade-in">
       <div className="mx-auto flex max-w-[1440px] flex-col gap-3 px-5 py-6 md:flex-row md:items-center md:justify-between md:px-8">
         <p className="u-label text-ink-mute">
           OVERTIME · CIRCUIT MAJOR S04 · LIVE FEED SYNTHETIC

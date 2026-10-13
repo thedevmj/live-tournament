@@ -1,0 +1,144 @@
+{
+  "name": "Kingdom of Chess — Tournament Platform",
+  "version": "1.0.0",
+  "source": "Extracted from live-tournament/app/globals.css + components; extended for tournament/leaderboard/live-board surfaces",
+  "color": {
+    "void": { "$type": "color", "$value": "#0a0b0d", "role": "app background" },
+    "void-2": { "$type": "color", "$value": "#0d0f13", "role": "recessed background (ticker, footer)" },
+    "panel": { "$type": "color", "$value": "#111419", "role": "card / module surface" },
+    "panel-2": { "$type": "color", "$value": "#171b21", "role": "raised surface, row hover, module header" },
+    "line": { "$type": "color", "$value": "#262b33", "role": "1px borders, dividers, rings" },
+    "line-soft": { "$type": "color", "$value": "#1a1e24", "role": "intra-component hairlines" },
+    "ink": { "$type": "color", "$value": "#f2f4ee", "role": "primary text", "contrast-on-void": "17.3:1" },
+    "ink-dim": { "$type": "color", "$value": "#9ba3ad", "role": "secondary text", "contrast-on-void": "7.7:1", "contrast-on-panel": "7.2:1" },
+    "ink-mute": { "$type": "color", "$value": "#737b85", "role": "tertiary / meta text", "contrast-on-void": "4.6:1", "contrast-on-panel": "4.3:1", "note": "4.3:1 on panel misses WCAG AA (4.5) at small sizes — see refinement in DESIGN.md" },
+    "acid": { "$type": "color", "$value": "#c6f832", "role": "primary accent, live signal, primary button", "contrast-on-void": "15.8:1" },
+    "acid-deep": { "$type": "color", "$value": "#95c314", "role": "accent hover / pressed" },
+    "live": { "$type": "color", "$value": "#ff4b3e", "role": "LIVE indicator, loss, timeout, danger", "contrast-on-void": "5.8:1" },
+    "board-light": { "$type": "color", "$value": "#d9ddc8", "role": "chessboard light square", "status": "proposed" },
+    "board-dark": { "$type": "color", "$value": "#4d5640", "role": "chessboard dark square", "status": "proposed" },
+    "board-last-move": { "$type": "color", "$value": "rgba(198, 248, 50, 0.28)", "role": "last-move square overlay", "status": "proposed" },
+    "board-check": { "$type": "color", "$value": "rgba(255, 75, 62, 0.42)", "role": "king in check square", "status": "proposed" }
+  },
+  "font": {
+    "family": {
+      "sans": { "$type": "fontFamily", "$value": "Archivo, \"Helvetica Neue\", Arial, sans-serif" },
+      "display": { "$type": "fontFamily", "$value": "Archivo, \"Arial Narrow\", sans-serif" },
+      "mono": { "$type": "fontFamily", "$value": "\"JetBrains Mono\", ui-monospace, \"SFMono-Regular\", monospace" }
+    },
+    "size": {
+      "label": { "$type": "dimension", "$value": "11px", "usage": "u-label — meta, table headers, badges" },
+      "xs": { "$type": "dimension", "$value": "13px", "usage": "mono timestamps, mark glyph" },
+      "sm": { "$type": "dimension", "$value": "14px", "usage": "table cells, row titles, PGN moves" },
+      "base": { "$type": "dimension", "$value": "16px", "usage": "body copy, forms, paragraphs" },
+      "md": { "$type": "dimension", "$value": "18px", "usage": "lead paragraphs, empty-state copy" },
+      "lg": { "$type": "dimension", "$value": "24px", "usage": "section titles (non-display)" },
+      "display-sm": { "$type": "dimension", "$value": "clamp(1.6rem, 3vw, 2.2rem)", "usage": "stat numerals, card headlines" },
+      "display-md": { "$type": "dimension", "$value": "clamp(1.8rem, 4.5vw, 3rem)", "usage": "scorebug player tags" },
+      "display-lg": { "$type": "dimension", "$value": "clamp(4rem, 11vw, 8.5rem)", "usage": "hero round/score numerals" },
+      "clock": { "$type": "dimension", "$value": "clamp(2.2rem, 4.5vw, 3.6rem)", "usage": "shared match clock" }
+    },
+    "weight": {
+      "regular": { "$type": "fontWeight", "$value": 400 },
+      "semibold": { "$type": "fontWeight", "$value": 600 },
+      "bold": { "$type": "fontWeight", "$value": 700 },
+      "display": { "$type": "fontWeight", "$value": 800, "usage": ".display — Archivo wght 800, wdth 112, uppercase" },
+      "numeral": { "$type": "fontWeight", "$value": 900, "usage": ".numeral — Archivo wght 900, wdth 64, tabular" }
+    },
+    "letterSpacing": {
+      "label": { "$type": "dimension", "$value": "0.16em", "usage": "u-label" },
+      "display": { "$type": "dimension", "$value": "-0.012em" },
+      "numeral": { "$type": "dimension", "$value": "-0.04em" },
+      "button": { "$type": "dimension", "$value": "0.08em", "usage": "uppercase buttons, tracking-widest" }
+    },
+    "lineHeight": {
+      "display": { "$type": "number", "$value": 0.94 },
+      "numeral": { "$type": "number", "$value": 0.76 },
+      "label": { "$type": "number", "$value": 1.1 },
+      "body": { "$type": "number", "$value": 1.5 }
+    }
+  },
+  "space": {
+    "0": { "$type": "dimension", "$value": "0px" },
+    "1": { "$type": "dimension", "$value": "4px" },
+    "2": { "$type": "dimension", "$value": "8px" },
+    "3": { "$type": "dimension", "$value": "12px" },
+    "4": { "$type": "dimension", "$value": "16px" },
+    "5": { "$type": "dimension", "$value": "20px" },
+    "6": { "$type": "dimension", "$value": "24px" },
+    "8": { "$type": "dimension", "$value": "32px" },
+    "10": { "$type": "dimension", "$value": "40px" },
+    "12": { "$type": "dimension", "$value": "48px" },
+    "16": { "$type": "dimension", "$value": "64px" },
+    "20": { "$type": "dimension", "$value": "80px" },
+    "optical": { "$type": "dimension", "$value": "3px", "usage": "exception: round-history cell gaps and 1px scorebug bars only" }
+  },
+  "border": {
+    "width": { "$type": "dimension", "$value": "1px", "usage": "all dividers, panel borders, rings — never 2px except active-nav underline and scorebug stripes" },
+    "radius": { "$type": "dimension", "$value": "0px", "usage": "LOCKED — square corners everywhere, no exceptions" },
+    "focus": { "$type": "dimension", "$value": "2px", "usage": "outline on :focus-visible, 2px offset, acid" }
+  },
+  "shadow": {
+    "none": { "$type": "shadow", "$value": "none", "usage": "LOCKED — depth comes from borders + surface steps (void → void-2 → panel → panel-2), never box-shadow" }
+  },
+  "size": {
+    "header-h": { "$type": "dimension", "$value": "64px" },
+    "container-max": { "$type": "dimension", "$value": "1440px" },
+    "touch-target": { "$type": "dimension", "$value": "44px", "usage": "minimum interactive height; buttons are 48px (py-3.5)" },
+    "board-square": { "$type": "dimension", "$value": "clamp(36px, 9vw, 64px)", "status": "proposed" }
+  },
+  "breakpoint": {
+    "sm": { "$type": "dimension", "$value": "640px" },
+    "md": { "$type": "dimension", "$value": "768px" },
+    "lg": { "$type": "dimension", "$value": "1024px" },
+    "xl": { "$type": "dimension", "$value": "1280px" }
+  },
+  "motion": {
+    "duration": {
+      "fast": { "$type": "duration", "$value": "120ms", "usage": "color swaps on hover" },
+      "base": { "$type": "duration", "$value": "180ms", "usage": "link/nav, row hover" },
+      "slow": { "$type": "duration", "$value": "220ms", "usage": "row accent bar, structural reveals" },
+      "enter": { "$type": "duration", "$value": "600ms", "usage": "staggered entrance" },
+      "ticker": { "$type": "duration", "$value": "52s", "usage": "marquee loop" }
+    },
+    "ease": {
+      "standard": { "$type": "cubicBezier", "$value": [0.2, 0.75, 0.25, 1] },
+      "default": { "$type": "cubicBezier", "$value": [0, 0, 0.2, 1] }
+    },
+    "stagger-step": { "$type": "duration", "$value": "75ms", "usage": "delay between staggered children (--i)" },
+    "reduced-motion": { "$type": "keyword", "$value": "all non-essential animation disabled under prefers-reduced-motion: reduce" }
+  },
+  "zIndex": {
+    "base": { "$type": "number", "$value": 0 },
+    "sticky-header": { "$type": "number", "$value": 40 },
+    "overlay": { "$type": "number", "$value": 50 },
+    "modal": { "$type": "number", "$value": 60 },
+    "toast": { "$type": "number", "$value": 70 }
+  },
+  "semantic": {
+    "status": {
+      "draft": { "$type": "color", "$value": "#737b85", "label": "DRAFT" },
+      "open": { "$type": "color", "$value": "#c6f832", "label": "OPEN" },
+      "ongoing": { "$type": "color", "$value": "#ff4b3e", "label": "LIVE" },
+      "completed": { "$type": "color", "$value": "#9ba3ad", "label": "FINAL" },
+      "queued": { "$type": "color", "$value": "#c6f832", "label": "IN QUEUE" }
+    },
+    "result": {
+      "win": { "$type": "color", "$value": "#c6f832", "points": 1 },
+      "draw": { "$type": "color", "$value": "#9ba3ad", "points": 0.5 },
+      "loss": { "$type": "color", "$value": "#ff4b3e", "points": 0 }
+    }
+  },
+  "utilityClasses": {
+    "u-label": "mono 11px / 0.16em / uppercase / tabular",
+    "display": "Archivo 800 wdth112 / uppercase / lh 0.94",
+    "numeral": "Archivo 900 wdth64 / tabular / lh 0.76",
+    "mono": "JetBrains Mono / tabular",
+    "panel": "panel bg + 1px line border, radius 0",
+    "panel-head": "flex header row, 1px bottom border, panel-2 tint",
+    "row-hit": "hover: panel-2 bg + 2px acid bar grows from center-left",
+    "dot-live": "1.25s step-end blink",
+    "stripes": "45° acid hazard stripes, 6/13px",
+    "scanlines": "1px CRT scanline overlay at 0.45 opacity"
+  }
+}
