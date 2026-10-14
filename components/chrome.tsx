@@ -31,7 +31,7 @@ export function TopBar({
 }) {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-void/85 backdrop-blur-md slide-down">
-      <div className="mx-auto flex h-16 max-w-[1440px] items-center gap-6 px-5 md:px-8">
+      <div className="mx-auto flex h-16 max-w-360 items-center gap-6 px-5 md:px-8">
         <Mark />
         <nav
           aria-label="Primary"
@@ -49,7 +49,7 @@ export function TopBar({
             >
               {item.label}
               {active === item.label && (
-                <span className="absolute inset-x-3 -bottom-[1px] h-[2px] bg-acid scale-in" />
+                <span className="absolute inset-x-3 -bottom-px h-0.5 bg-acid scale-in" />
               )}
             </Link>
           ))}
@@ -94,11 +94,11 @@ export function Ticker({ items }: { items: string[] }) {
         {row(true)}
       </div>
       <div
-        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-void to-transparent"
+        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-linear-to-r from-void to-transparent"
         aria-hidden="true"
       />
       <div
-        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-void-2 to-transparent"
+        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-linear-to-l from-void-2 to-transparent"
         aria-hidden="true"
       />
     </div>
@@ -108,7 +108,7 @@ export function Ticker({ items }: { items: string[] }) {
 export function Footer() {
   return (
     <footer className="mt-16 border-t border-line bg-void-2 fade-in">
-      <div className="mx-auto flex max-w-[1440px] flex-col gap-3 px-5 py-6 md:flex-row md:items-center md:justify-between md:px-8">
+      <div className="mx-auto flex max-w-360 flex-col gap-3 px-5 py-6 md:flex-row md:items-center md:justify-between md:px-8">
         <p className="u-label text-ink-mute">
           OVERTIME · CIRCUIT MAJOR S04 · LIVE FEED SYNTHETIC
         </p>

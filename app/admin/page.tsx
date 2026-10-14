@@ -17,7 +17,7 @@ export default async function AdminPage() {
   return (
     <>
       <TopBar active="" liveCount={countLiveMatches(state)} />
-      <main className="mx-auto max-w-[1440px] px-5 py-10 md:px-8 md:py-12">
+      <main className="mx-auto max-w-360 px-5 py-10 md:px-8 md:py-12">
         <AdminPanel />
       </main>
       <Footer />

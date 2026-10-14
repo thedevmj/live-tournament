@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useSyncExternalStore, useState, useRef } from "react";
+import { useEffect, useSyncExternalStore, useState } from "react";
 
 const reducedMotionQuery =
   typeof window !== "undefined"
@@ -37,7 +37,6 @@ export function LiveClock({
   });
   const [tick, setTick] = useState(0);
   const reducedMotion = usePrefersReducedMotion();
-  const prevSecondsRef = useRef(seconds);
 
   useEffect(() => {
     if (reducedMotion) return;
